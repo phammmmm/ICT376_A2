@@ -1,4 +1,4 @@
-package au.edu.murdoch.ict376.databasehelper;
+package au.edu.murdoch.takemeaway;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -79,6 +79,12 @@ public class TakeMeAwayDBHelper extends SQLiteOpenHelper {
         return tmaDB;
     }
 
+
+    //commit
+    public void commit(){
+        tmaDB.setTransactionSuccessful();
+    }
+
     //close connection
     public void close(){
         tmaDB.endTransaction();
@@ -130,8 +136,10 @@ public class TakeMeAwayDBHelper extends SQLiteOpenHelper {
                 COL_PostLocationAddr, COL_PostLocationLat, COL_PostLocationLng,
                 COL_IsDelete};
         */
-
-        String rowCountStr = String.valueOf(rowCount);
+        String rowCountStr = null;
+        if(rowCount > 0){
+            rowCountStr = String.valueOf(rowCount);
+        }
         String sortOrder = "DESC";
         if (postDateSortASCorDESC.equalsIgnoreCase("DESC")){
             sortOrder = "DESC";
@@ -143,8 +151,8 @@ public class TakeMeAwayDBHelper extends SQLiteOpenHelper {
 
         return tmaDB.query(
                 TABLE_NAME, null, COL_IsDelete + " = 0",
-                null, COL_PostDateTime + " " + sortOrder,
-                null, rowCountStr );
+                null, null,
+                null, COL_PostDateTime + " " + sortOrder, rowCountStr );
 
 
     }

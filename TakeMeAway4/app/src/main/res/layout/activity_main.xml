@@ -28,14 +28,25 @@
             android:src="@drawable/theme"
             android:layout_gravity="center" />
 
+
+
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+<!--  TODO: change back to RecyclerView  -->
+
+    <!--    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/cToolbar"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
+
+    <ListView
+        android:id="@+id/list_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cToolbar"
+        app:layout_anchorGravity="center" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
