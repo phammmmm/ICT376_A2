@@ -46,6 +46,8 @@ public class TakeMeAwayDBHelper extends SQLiteOpenHelper {
                 COL_IsDelete + " BOOLEAN NOT NULL DEFAULT 0 " +
             ");";
 
+    //TODO: change the single table to multiple table (e.g. PostImageTable, PostLocationTable, etc. as necessary)
+
     //
     //default constructor
     public TakeMeAwayDBHelper(@Nullable Context context) {
@@ -159,14 +161,18 @@ public class TakeMeAwayDBHelper extends SQLiteOpenHelper {
 
 
 
-    //false delete row instead of a true delete, 1 = delete, 0 = not delete.
-    public int DeleteRow(int postID, int isDeleteFlag){
+    //false delete row instead of a true delete -> raise a delete flag in the db, data is hidden but still exists
+    public int FlagDeleteRow(int postID){
         ContentValues cvs = new ContentValues();
-        cvs.put(COL_IsDelete, isDeleteFlag);
+
+        // 1 = delete, 0 = not delete.
+        cvs.put(COL_IsDelete, 1);
 
         return tmaDB.update(TABLE_NAME, cvs, COL_PostID + " = ?" , new String[]{String.valueOf(postID)});
     }
 
-
+    public int DeleteRow(int postID){
+        return tmaDB.delete(TABLE_NAME, COL_PostID + " = ?" , new String[]{String.valueOf(postID)});
+    }
 
 }
