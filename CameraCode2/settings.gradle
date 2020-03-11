@@ -1,0 +1,2 @@
+rootProject.name='CameraCode2'
+include ':app'
