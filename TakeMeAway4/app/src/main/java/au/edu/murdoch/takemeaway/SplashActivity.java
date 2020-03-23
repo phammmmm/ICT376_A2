@@ -31,7 +31,6 @@ public class SplashActivity extends AppCompatActivity {
         logo.startAnimation(slideUp);
 
 
-
         CountDownTimer count = new CountDownTimer(SPLASH_TIME_OUT, SPLASH_TIME_OUT) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -41,9 +40,9 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 Intent intent;
-                    intent = new Intent(SplashActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
 
             }
         }.start();

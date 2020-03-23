@@ -11,45 +11,18 @@
     tools:context=".MainActivity"
     tools:ignore="ExtraText">
 
-
     <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_centerInParent="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/theme"
-            android:layout_gravity="center" />
-
-
-
-    </FrameLayout>
-
-<!--  TODO: change back to RecyclerView  -->
-
-    <!--    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_item"
+        android:id="@+id/notes_list_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/cToolbar"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />-->
+        android:background="?android:attr/detailsElementBackground"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp">
+    </FrameLayout>
 
-    <ListView
-        android:id="@+id/list_item"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cToolbar"
-        app:layout_anchorGravity="center" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/create_new_button"
         style="@style/Widget.Design.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,6 +33,4 @@
         app:rippleColor="#FFFFFF"
         app:srcCompat="@android:drawable/ic_input_add"
         app:fabSize="auto"/>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
