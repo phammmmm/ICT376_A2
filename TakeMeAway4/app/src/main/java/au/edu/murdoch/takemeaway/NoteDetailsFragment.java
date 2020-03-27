@@ -1,62 +1,39 @@
 package au.edu.murdoch.takemeaway;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Camera;
 import android.graphics.drawable.BitmapDrawable;
-import android.icu.text.TimeZoneFormat;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CalendarView;
+import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.ImageView;
-import android.widget.TextClock;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.Toolbar;
-
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.SimpleTimeZone;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link NoteDetailsFragment#newInstance} factory method to
@@ -64,27 +41,18 @@ import java.util.SimpleTimeZone;
  */
 public class NoteDetailsFragment extends Fragment {
     private TakeMeAwayDBHelper mydb ;
-    private static final int CAMERA_REQUEST = 1888;
-    private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int GALLERY_REQUEST_CODE = 100;
-    private static final int CAMERA_REQUEST_CODE = 200;
-    private String cameraFilePath;
 
     private CoordinatorLayout coordinatorLayout;
     private View mLayoutView;
-    private TextView title ;
-    private TextView content;
-    //TextView dateTime;
-    private TextView dateTextView;
-    private TextView timeTextView;
-    private TextView location;
-    private ImageView imageView;
+    private TextView title, content, dateTextView, timeTextView, location;
+    private ImageView imvBanner, imvGallery, imvCamera;
     private String dateFormat = "MMM dd, yyyy";
     SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
     final Calendar myCalendar = Calendar.getInstance();
-    private TimePickerDialog timePickerDialog;
-    Toolbar toolbar;
     private int noteId = 0;
+    PopupWindow puwPhotoChoice;
 
     // the buttons
     FloatingActionButton mSaveButton;
@@ -176,7 +144,7 @@ public class NoteDetailsFragment extends Fragment {
         mSaveButton =  mLayoutView.findViewById(R.id.button_save);
 
         mChangePhoto = mLayoutView.findViewById(R.id.TakePhoto);
-        imageView = mLayoutView.findViewById(R.id.newImage);
+        imvBanner = mLayoutView.findViewById(R.id.newImage);
 
         //toolbar delete button
         //toolbar = mLayoutView.findViewById(R.id.toolbar);
@@ -191,17 +159,67 @@ public class NoteDetailsFragment extends Fragment {
             timeTextView.setText(note.getTime());
             location.setText(note.getLocation());
             if(note.getImage()!=null){
-                imageView.setImageBitmap(note.getImage());
+                imvBanner.setImageBitmap(note.getImage());
             }
         }
+
+
+
 
         mChangePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+            View myPopupView = LayoutInflater.from(getActivity()).inflate(R.layout.popup_photo_choice_layout, null, false);
+            puwPhotoChoice = new PopupWindow(
+                myPopupView,view.getRootView().findViewById(R.id.myLinear).getWidth(),
+                view.getRootView().findViewById(R.id.myLinear).getHeight(),
+                true
+            );
+            puwPhotoChoice.showAtLocation(view.getRootView().findViewById(R.id.myLinear), Gravity.CENTER, 0, 0);
+            View popContainer = (View) puwPhotoChoice.getContentView().getParent();
+            WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+            WindowManager.LayoutParams p = (WindowManager.LayoutParams) popContainer.getLayoutParams();
+            p.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+            p.dimAmount = 0.6f;
+            wm.updateViewLayout(popContainer, p);
+
+            imvCamera = myPopupView.findViewById(R.id.imvCamera);
+            imvGallery = myPopupView.findViewById(R.id.imvGallery);
+
+            imvCamera.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                if (checkCameraHardware(getContext())){
+                    dispatchTakePictureIntent();
+                }
+                //close popup after setting image after 1s
+                new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            puwPhotoChoice.dismiss();
+                        }
+                    }, 1000
+                );
+                }
+            });
+
+            imvGallery.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_REQUEST_CODE);
+                //close popup after setting image after 1s
+                new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            puwPhotoChoice.dismiss();
+                        }
+                    }, 1000
+                );
+                }
+            });
             }
         });
 
@@ -212,6 +230,9 @@ public class NoteDetailsFragment extends Fragment {
                 saveNote();
             }
         });
+
+
+
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
@@ -273,15 +294,17 @@ public class NoteDetailsFragment extends Fragment {
                 case GALLERY_REQUEST_CODE:
                     //data.getData returns the content URI for the selected Image
                     Uri selectedImage = data.getData();
-                    imageView.setImageURI(selectedImage);
+                    imvBanner.setImageURI(selectedImage);
                     break;
 
-                case CAMERA_REQUEST_CODE:
-                    imageView.setImageURI(Uri.parse(cameraFilePath));
+                case REQUEST_IMAGE_CAPTURE:
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    imvBanner.setImageBitmap(imageBitmap);
+//                    imvBanner.setImageURI(Uri.parse(cameraFilePath));
                     break;
             }
     }
-
 
     public void onDeleteContactClick(){
 
@@ -307,7 +330,6 @@ public class NoteDetailsFragment extends Fragment {
 
     }
 
-
     public void saveNote(){
         TMANote note = new TMANote();
         note.setTitle(title.getText().toString());
@@ -315,7 +337,7 @@ public class NoteDetailsFragment extends Fragment {
         note.setLocation(location.getText().toString());
         note.setDate(dateTextView.getText().toString());
         note.setTime(timeTextView.getText().toString());
-        note.setImage(((BitmapDrawable)imageView.getDrawable()).getBitmap());
+        note.setImage(((BitmapDrawable)imvBanner.getDrawable()).getBitmap());
         if(noteId>0){
             int result = mydb.updateNote(noteId,note);
             if(result>0){
@@ -344,6 +366,24 @@ public class NoteDetailsFragment extends Fragment {
             noteListFragment.refresh();
         }
 
+    }
+
+    /** Check if this device has a camera */
+    private boolean checkCameraHardware(Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            // this device has a camera
+            return true;
+        } else {
+            // no camera on this device
+            return false;
+        }
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
 }
