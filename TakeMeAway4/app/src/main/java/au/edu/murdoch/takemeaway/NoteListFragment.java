@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,6 +38,7 @@ public class NoteListFragment extends Fragment {
     private FloatingActionButton createButton;
     private ListView noteListView;
     ImageView imageView;
+    CustomAdapter arrayAdapter;
 
     // Database
     TakeMeAwayDBHelper mydb=null;
@@ -63,8 +66,8 @@ public class NoteListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         // Inflate the layout for this fragment
         mLayoutView = inflater.inflate(R.layout.note_list_layout, container, false);
         //noteListView = (RecyclerView)mLayoutView.findViewById(R.id.note_list);
@@ -111,7 +114,7 @@ public class NoteListFragment extends Fragment {
             array_list.add(note.getDate()+" " +note.getTime()+ "     " + note.getTitle());
         }
         // Put all the contacts in an array
-        ArrayAdapter arrayAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_expandable_list_item_1, array_list);
+        arrayAdapter = new CustomAdapter(getActivity(), android.R.layout.simple_expandable_list_item_1, array_list);
 
         // Display the contacts in the ListView object
         noteListView = mLayoutView.findViewById(R.id.note_list);
@@ -127,4 +130,36 @@ public class NoteListFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.search_btn:
+                // Do Activity menu item stuff here
+                Toast.makeText(getActivity(),"Hello",Toast.LENGTH_LONG).show();
+                SearchList(item);
+                return true;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    public void SearchList(MenuItem item){
+        SearchView searchView = (SearchView)item.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+    }
+
 }

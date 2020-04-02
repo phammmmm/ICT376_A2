@@ -27,7 +27,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".DisplayNoteActivity" />
+        <activity android:name=".DisplayNoteActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

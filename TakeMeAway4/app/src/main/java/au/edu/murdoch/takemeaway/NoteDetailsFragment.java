@@ -117,7 +117,7 @@ public class NoteDetailsFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.delete:
                 // Do Activity menu item stuff here
-                onDeleteContactClick();
+                onDeleteNoteClick();
                 return true;
             default:
                 break;
@@ -356,7 +356,7 @@ public class NoteDetailsFragment extends Fragment {
             }
         });
 
-//TODO: saving location and image
+
         mSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -456,7 +456,7 @@ public class NoteDetailsFragment extends Fragment {
             }
     }
 
-    public void onDeleteContactClick(){
+    public void onDeleteNoteClick(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
